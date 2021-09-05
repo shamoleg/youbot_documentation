@@ -57,7 +57,7 @@ nano youbot-ethercat.cfg
 
 Конфигурационный файл должен выглядеть как на приведенной картинке ниже
 
-![eth](./images/eth.png
+![eth](./images/eth.png)
 
 Создайте рабочую область ROS:
 

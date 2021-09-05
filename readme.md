@@ -27,13 +27,13 @@
 sudo apt-get install ros-kinetic-youbot-driver
 ```
 
-Установите утилиту ifconfig выполнив команду:
+Установите утилиту ifconfig:
 
 ```console
 sudo apt-get install net-tools
 ```
 
-Узнайте название Ethernet интерфейса выполнив команду:
+Узнайте название Ethernet интерфейса:
 
 ```console
 ifconfig
@@ -43,13 +43,13 @@ ifconfig
 
 ![ifconfig](./images/ifconfig.png)
 
-Перейдите в директорию конфигурационных файлов youbot_driver/config выполнив команду:
+Перейдите в директорию конфигурационных файлов youbot_driver/config:
 
 ```console
 roscd youbot_driver/config 
 ```
 
-Измените в название EthernetDevice на название Ethernet интерфейса компьютера отредактировав файл youbot-ethercat.cfg консольным текстовым редактором nano выполнив команду:
+Измените в название EthernetDevice на название Ethernet интерфейса компьютера отредактировав файл youbot-ethercat.cfg консольным текстовым редактором nano:
 
 ```console
 nano youbot-ethercat.cfg
@@ -59,7 +59,7 @@ nano youbot-ethercat.cfg
 
 ![eth](./images/eth.png
 
-Создайте рабочую область ROS последовательно выполнив команды:
+Создайте рабочую область ROS:
 
 ```console
 mkdir -p ~/catkin_ws/src
@@ -67,27 +67,27 @@ cd ~/catkin_ws/src
 catkin_init_workspace
 ```
 
-Установите git выполнив команду:
+Установите git:
 
 ```console
 sudo apt-get install git
 ```
 
-Скачате youbot_driver_ros_interface выполнив команды:
+Скачате youbot_driver_ros_interface:
 
 ```console
 cd ~/catkin_ws/src
 git clone https://github.com/youbot/youbot_driver_ros_interface.git
 ```
 
-Соберите рабочую область выполнив команды:
+Соберите рабочую область:
 
 ```console
 cd ~/catkin_ws
 catkin_make
 ```
 
-Перейдите в директорию с собранным youbot_driver_ros_interface и разрешите исполняемым файлам взаимодействовать с EtherCAT выполнив команды:
+Перейдите в директорию с собранным youbot_driver_ros_interface и разрешите исполняемым файлам взаимодействовать с EtherCAT:
 
 ```console
 cd ~/catkin_ws/devel/lib/youbot_driver_ros_interface/
@@ -109,12 +109,12 @@ sudo setcap cap_net_raw+ep youbot_arm_test
 
 Мобильная платформа включена и готова к работе.
 
-Запустите ноду управления на персональном компьютере выполнив команду:
+Запустите ноду управления на персональном компьютере:
 ```console
 roslaunch youbot_driver_ros_interface youbot_driver.launch
 ```
 
-Запустите тест выполнив команду в новом окне терминала:
+Запустите тест в новом окне терминала:
 ```console
 rosrun youbot_driver_ros_interface youbot_arm_test 
 ```

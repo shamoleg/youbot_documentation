@@ -63,8 +63,17 @@ nano youbot-ethercat.cfg
 
 ```console
 mkdir -p ~/catkin_ws/src
-cd ~/catkin_ws/src
+cd ~/catkin_ws/src/
 catkin_init_workspace
+cd ~/catkin_ws/
+catkim_make
+```
+
+Для использования созданного окружения добавте выполнение команды в файл .bashrc
+
+```console
+echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
+source ~/.bashrc
 ```
 
 Установите git:
@@ -73,17 +82,25 @@ catkin_init_workspace
 sudo apt-get install git
 ```
 
+Установите небходимые зависимости для youbot_driver_ros_interface:
+
+```console
+sudo apt-get install ros-kinetic-brics-actuator
+sudo apt-get install ros-kinetic-pr2-controllers
+
+```
+
 Скачате youbot_driver_ros_interface:
 
 ```console
-cd ~/catkin_ws/src
+cd ~/catkin_ws/src/
 git clone https://github.com/youbot/youbot_driver_ros_interface.git
 ```
 
 Соберите рабочую область:
 
 ```console
-cd ~/catkin_ws
+cd ~/catkin_ws/
 catkin_make
 ```
 
@@ -129,17 +146,5 @@ rosrun youbot_driver_ros_interface youbot_keyboard_teleop.py
 Для выключения мобильной платформы зажмите черную кнопку и отпустите когда на экране загориться надпись "Switch off", экран должен погаснуть.
 
 
-
-<!--
-
-```console
-cd ~/catkin_ws/src
-git clone https://github.com/youbot/youbot_driver.git
-git clone https://github.com/youbot/youbot_driver_ros_interface.git
-git clone https://github.com/wnowak/brics_actuator
-sudo apt-get install ros-noetic-pr2-msgs
-```
-
-``` -->
 
 

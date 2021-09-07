@@ -39,26 +39,29 @@ int main(int argc, char **argv) {
     //to the aaddscmd_vel topic, with a queue size of 1
     ros::Publisher pub=nh.advertise<geometry_msgs::Twist>("cmd_vel", 1);
 
-    //Sets up the random number generator
-    srand(time(0));
-
-    double vx = 0.3
-    double vy = 0.3
-    double th = 0.1
+    double vx = 0.0
+    double vy = 0.0
+    double th = 0.0
 
     //Sets the loop to publish at a rate of 10Hz
     ros::Rate rate(10);
 
 
     while(ros::ok()) {
+
+        cout << "Please type value of  vx" << endl;
+        cin >> readValue;
+        cout << "Please type value of  vy" << endl;
+        cin >> readValue;
+        cout << "Please type value of  th" << endl;
+        cin >> readValue;
+
         //Declares the message to be sent
         geometry_msgs::Twist msg;
-        //Random x value between -2 and 2
         msg.linear.x = vx;
-        //Random y value between -3 and 3
         msg.linear.y = vy;
-        //Random y value between -3 and 3
-        msg.angular.z = 0.1;
+        msg.angular.z = th;
+
         //Publish the message
         pub.publish(msg);
 
@@ -68,3 +71,103 @@ int main(int argc, char **argv) {
 }
 ```
 
+##  Пример написания управления манипулятором
+
+```cpp
+#include <iostream>
+#include <assert.h>
+
+#include "ros/ros.h"
+#include "trajectory_msgs/JointTrajectory.h"
+#include "brics_actuator/CartesianWrench.h"
+
+#include <boost/units/io.hpp>
+
+#include <boost/units/systems/angle/degrees.hpp>
+#include <boost/units/conversion.hpp>
+
+#include <iostream>
+#include <assert.h>
+
+#include "ros/ros.h"
+#include "brics_actuator/JointPositions.h"
+
+#include <boost/units/systems/si/length.hpp>
+#include <boost/units/systems/si/plane_angle.hpp>
+#include <boost/units/io.hpp>
+
+#include <boost/units/systems/angle/degrees.hpp>
+#include <boost/units/conversion.hpp>
+
+using namespace std;
+
+int main(int argc, char **argv) {
+
+	ros::init(argc, argv, "youbot_arm_test");
+	ros::NodeHandle n;
+	ros::Publisher armPositionsPublisher;
+	ros::Publisher gripperPositionPublisher;
+
+	armPositionsPublisher = n.advertise<brics_actuator::JointPositions > ("arm_1/arm_controller/position_command", 1);
+	gripperPositionPublisher = n.advertise<brics_actuator::JointPositions > ("arm_1/gripper_controller/position_command", 1);
+
+	ros::Rate rate(20); //Hz
+	double readValue;
+	static const int numberOfArmJoints = 5;
+	static const int numberOfGripperJoints = 2;
+	while (n.ok()) {
+		brics_actuator::JointPositions command;
+		vector <brics_actuator::JointValue> armJointPositions;
+		vector <brics_actuator::JointValue> gripperJointPositions;
+
+		armJointPositions.resize(numberOfArmJoints); 
+		gripperJointPositions.resize(numberOfGripperJoints);
+
+		std::stringstream jointName;
+
+
+		// ::io::base_unit_info <boost::units::si::angular_velocity>).name();
+		for (int i = 0; i < numberOfArmJoints; ++i) {
+			cout << "Please type in value for joint " << i + 1 << endl;
+			cin >> readValue;
+
+			jointName.str("");
+			jointName << "arm_joint_" << (i + 1);
+
+			armJointPositions[i].joint_uri = jointName.str();
+			armJointPositions[i].value = readValue;
+
+			armJointPositions[i].unit = boost::units::to_string(boost::units::si::radians);
+			cout << "Joint " << armJointPositions[i].joint_uri << " = " << armJointPositions[i].value << " " << armJointPositions[i].unit << endl;
+
+		};
+
+		cout << "Please type in value for a left jaw of the gripper " << endl;
+		cin >> readValue;
+		gripperJointPositions[0].joint_uri = "gripper_finger_joint_l";
+		gripperJointPositions[0].value = readValue;
+		gripperJointPositions[0].unit = boost::units::to_string(boost::units::si::meter);
+
+		cout << "Please type in value for a right jaw of the gripper " << endl;
+		cin >> readValue;
+		gripperJointPositions[1].joint_uri = "gripper_finger_joint_r";
+		gripperJointPositions[1].value = readValue;
+		gripperJointPositions[1].unit = boost::units::to_string(boost::units::si::meter);
+
+		cout << "sending command ..." << endl;
+
+		command.positions = armJointPositions;
+		armPositionsPublisher.publish(command);
+
+		command.positions = gripperJointPositions;
+		gripperPositionPublisher.publish(command);
+
+		cout << "--------------------" << endl;
+		ros::spinOnce();
+		rate.sleep();
+
+	}
+
+	return 0;
+}
+```

@@ -13,7 +13,8 @@ catkin_create_pkg youbot_control geometry_msgs roscpp brics_actuator pr2_msgs st
  
 Пакет готов для написания кода.
 
-##  Пример написания управления скоростью
+
+##  Пример написания узлов управления
 
 Рассмотрим пример написания узла управления скорости. Благодаря модульности ROS данная реализация подойдет и к другим мобильным платформам.
 
@@ -52,7 +53,7 @@ int main(int argc, char **argv) {
     while(ros::ok()) {
 
         cout << "Please type value of vx" << endl;
-        cin >> vx;
+        cin >> vx
         cout << "Please type value of vy" << endl;
         cin >> vy;
         cout << "Please type value of th" << endl;
@@ -80,7 +81,65 @@ add_executable(velocity_control src/velocity_control.cpp)
 target_link_libraries(velocity_control ${catkin_LIBRARIES})
 ```
 
-Аналогичным способом создаем узел управления положениям манипулятора, создав фаил исходника и скопировав в него код:
+Для упрвления манипулятором вам необходимо задавать положения каждого сочленения в радианах, а для захвата в метрах.
+
+
+![youbot](./images/youBot_3D_model.png)
+
+
+Если манипулятор KUKA youBot эксплуатируется без мобильной платформы, базовая рама манипулятора является исходной рамой. В этом случае его относительное положение XYZ равно «0,0,0». Если манипулятор установлен на мобильной платформе, базовая рама манипулятор представляет собой преобразование координат по отношению к базовой раме мобильной платформы.
+
+
+```ml
+arm joint 1
+Parent joint = “arm base frame”;
+Relative positionXYZ = “24mm 0mm 115mm”;
+OrientationZYX = “0° 0° 180°”;
+Joint limits = “-169° 169°”;
+
+arm joint 2
+Parent joint = “arm joint 1”;
+Relative positionXYZ = “33mm 0mm 0mm”;
+Orientation ZYX = “-90° 0° 90°”;
+Joint limits = “-65° 90°”;
+
+arm joint 3
+Parent joint = “arm joint 2”;
+Relative positionXYZ = “155mm 0mm 0mm”;
+OrientationZYX = “-90° 0° 0°”;
+Joint limits = “-151° 146°”;
+
+arm joint 4
+Parent joint = “arm joint 3”;
+Relative positionXYZ = “0mm 135mm 0mm”;
+OrientationZYX = “0° 0° 0°”;
+Joint limits = “-102.5° 102.5°”;
+
+arm joint 5
+Parent joint = “arm joint 4”;
+Relative positionXYZ = “0mm 113.6mm 0mm”;
+OrientationZYX = “0° 0° -90°”;
+Joint limits = “-165° 165°”;
+
+
+gripper base frame
+Parent joint = “arm joint 5”;
+Relative position = “0mm 0mm 57.16mm”;
+OrientationZYX = “180° 0° 0°”;
+
+gripper left finger joint
+Parent joint = “gripper base frame”;
+Relative position = “0mm 8.2mm 0mm”;
+Joint limits = “0mm 12.5mm”;
+
+
+gripper right finger joint
+Parent joint = “gripper base frame”;
+Relative position = “0mm -8.2mm 0mm”;
+Joint limits = “0mm 12.5mm”;
+```
+
+Аналогичным способом создаем узел управления положением манипулятора, создав фаил исходника и скопировав в него код:
 
 ```console
 cd ~/catkin_ws/src/youbot_control/src
@@ -215,13 +274,13 @@ catkin_make
 roslaunch youbot_driver_ros_interface youbot_driver.launch
 ```
 
-В новом окне терминала запустите узел управления скоростью
+В новом окне терминала запустите узел управления скоростью:
 
 ```console
 rosrun youbot_driver_ros_interface velocity_control
 ```
 
-В новом окне терминала запустите узел управления манипулятором
+В новом окне терминала запустите узел управления манипулятором:
 
 ```console
 rosrun youbot_driver_ros_interface manipulator_control

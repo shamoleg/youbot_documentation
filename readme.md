@@ -128,7 +128,7 @@ sudo setcap cap_net_raw+ep youbot_arm_test
 
 Мобильная платформа включена и готова к работе.
 
-Запустите ноду управления на персональном компьютере:
+Запустите yзел управления на персональном компьютере:
 ```console
 roslaunch youbot_driver_ros_interface youbot_driver.launch
 ```
@@ -143,10 +143,6 @@ rosrun youbot_driver_ros_interface youbot_arm_test
 rosrun youbot_driver_ros_interface youbot_keyboard_teleop.py
 ```
 
-Для остановки работы ноды в выбранном окне терминала нажмите сочетание клавиш  `Ctrl + C`
+Для остановки работы узла в выбранном окне терминала нажмите сочетание клавиш  `Ctrl + C`
 
 Для выключения мобильной платформы зажмите черную кнопку и отпустите когда на экране загориться надпись "Switch off", экран должен погаснуть.
-
-
-
-

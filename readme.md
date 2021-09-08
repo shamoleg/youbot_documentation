@@ -2,6 +2,8 @@
 
 В данном документе представлена инструкция по установке и настройке программного обеспечения для платформы KUKA youBot.
 
+![youbot](./images/youbot.jpg)
+
 ## Подготовка рабочего окружения
 
 Для работы вам потребуется компьютер под управлением операционной системой Ubuntu 16.04 и установленная операционная система для роботов ROS Kinetic Kame. Данная инструкция подойдет и к более старым версиям.
@@ -69,7 +71,7 @@ cd ~/catkin_ws/
 catkim_make
 ```
 
-Для использования созданного окружения добавте выполнение команды в файл .bashrc
+Для использования созданного окружения добавьте выполнение команды в файл .bashrc
 
 ```console
 echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
@@ -82,7 +84,7 @@ source ~/.bashrc
 sudo apt-get install git
 ```
 
-Установите небходимые зависимости для youbot_driver_ros_interface:
+Установите необходимые зависимости для youbot_driver_ros_interface:
 
 ```console
 sudo apt-get install ros-kinetic-brics-actuator

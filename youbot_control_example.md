@@ -2,7 +2,7 @@
 
 В данном документе представлена инструкция по написанию программного обеспечения для платформы KUKA youBot.
 
-Для работы потребуется создать пакет где будят хранится исходники файлов.
+Для работы потребуется создать пакет, где будут храниться исходники файлов.
 
 Откройте рабочую область и создайте пакет с необходимыми зависимостями:
 
@@ -15,14 +15,16 @@ catkin_create_pkg youbot_control geometry_msgs roscpp brics_actuator pr2_msgs st
 
 ##  Пример написания управления скоростью
 
+Рассмотрим пример написания ноды управления скорости. Благодаря модульности ROS данная реализация подойдет и к другим мобильным платформам.
+
 Создайте c++ файл:
 
 ```console
 cd ~/catkin_ws/src/youbot_control/src
-touch teleop_twist_keyboard.cpp
+touch velocity_control.cpp
 ```
 
-Откройте созданный файл в любом редакторе кода. Пример кода представлен ниже.
+Скопируйте следующий код:
 
 ```cpp
 #include <ros/ros.h>
@@ -31,13 +33,13 @@ touch teleop_twist_keyboard.cpp
 #include <stdlib.h> 
 
 int main(int argc, char **argv) {
-    //Initializes ROS, and sets up a node
-    ros::init(argc, argv, "youbot_control");
+    //Инициализирует ROS и настраивает узел
+    ros::init(argc, argv, "velocity_control");
     ros::NodeHandle nh;
 
-    //Ceates the publisher, and tells it to publish
-    //to the aaddscmd_vel topic, with a queue size of 1
-    ros::Publisher pub=nh.advertise<geometry_msgs::Twist>("cmd_vel", 1);
+    //Создает издателя для передачи
+    ros::Publisher pub
+    pub = nh.advertise<geometry_msgs::Twist>("cmd_vel", 1);
 
     double vx = 0.0
     double vy = 0.0
@@ -49,29 +51,41 @@ int main(int argc, char **argv) {
 
     while(ros::ok()) {
 
-        cout << "Please type value of  vx" << endl;
-        cin >> readValue;
-        cout << "Please type value of  vy" << endl;
-        cin >> readValue;
-        cout << "Please type value of  th" << endl;
-        cin >> readValue;
+        cout << "Please type value of vx" << endl;
+        cin >> vx;
+        cout << "Please type value of vy" << endl;
+        cin >> vy;
+        cout << "Please type value of th" << endl;
+        cin >> th;
 
-        //Declares the message to be sent
+        //Создание сообщения для отправки
         geometry_msgs::Twist msg;
         msg.linear.x = vx;
         msg.linear.y = vy;
         msg.angular.z = th;
 
-        //Publish the message
+        //Отправка сообщения
         pub.publish(msg);
 
-        //Delays untill it is time to send another message
+        //Задержка, пока не пришло время отправить другое сообщение
         rate.sleep();
         }
 }
 ```
 
-##  Пример написания управления манипулятором
+Компиляция в ROS выполняется системой сборки catkin. Первым шагом обычно является установка зависимостей наших пакетов в CMakeLists.txt и package.xml. Однако это уже было сделано для нас, когда мы создали пакет и указали наши зависимости. Следующим шагом будет объявление нашего нового узла как исполняемого файла, это делается путем добавления следующих двух строк в файл CMakeLists.txt расположенный в ~/catkin_ws/src/youbot_control/
+
+```cmake
+add_executable(velocity_control src/velocity_control.cpp)
+target_link_libraries(velocity_control ${catkin_LIBRARIES})
+```
+
+Аналогичным способом создаем узел управления положениям манипулятора, создав фаил исходника и скопировав в него код:
+
+```console
+cd ~/catkin_ws/src/youbot_control/src
+touch manipulator_control.cpp
+```
 
 ```cpp
 #include <iostream>
@@ -103,19 +117,26 @@ using namespace std;
 
 int main(int argc, char **argv) {
 
-	ros::init(argc, argv, "youbot_arm_test");
+    //Инициализирует ROS и настраивает узел
+	ros::init(argc, argv, "manipulator_control");
 	ros::NodeHandle n;
+
+    //Создает издателя для манипулятора и захвата
 	ros::Publisher armPositionsPublisher;
 	ros::Publisher gripperPositionPublisher;
-
+    
+    //Передает издателю тип сообщения и тему для публикации 
 	armPositionsPublisher = n.advertise<brics_actuator::JointPositions > ("arm_1/arm_controller/position_command", 1);
 	gripperPositionPublisher = n.advertise<brics_actuator::JointPositions > ("arm_1/gripper_controller/position_command", 1);
 
 	ros::Rate rate(20); //Hz
 	double readValue;
+    //Количество сочленений
 	static const int numberOfArmJoints = 5;
 	static const int numberOfGripperJoints = 2;
 	while (n.ok()) {
+
+        //Создание сообщения
 		brics_actuator::JointPositions command;
 		vector <brics_actuator::JointValue> armJointPositions;
 		vector <brics_actuator::JointValue> gripperJointPositions;
@@ -125,8 +146,7 @@ int main(int argc, char **argv) {
 
 		std::stringstream jointName;
 
-
-		// ::io::base_unit_info <boost::units::si::angular_velocity>).name();
+		//Реализация последовательного ввода положения в радианах для каждого сочленения манипулятора
 		for (int i = 0; i < numberOfArmJoints; ++i) {
 			cout << "Please type in value for joint " << i + 1 << endl;
 			cin >> readValue;
@@ -142,32 +162,69 @@ int main(int argc, char **argv) {
 
 		};
 
+        //Реализация последовательного ввода положения в метрах для захвата
 		cout << "Please type in value for a left jaw of the gripper " << endl;
 		cin >> readValue;
 		gripperJointPositions[0].joint_uri = "gripper_finger_joint_l";
 		gripperJointPositions[0].value = readValue;
 		gripperJointPositions[0].unit = boost::units::to_string(boost::units::si::meter);
-
 		cout << "Please type in value for a right jaw of the gripper " << endl;
 		cin >> readValue;
 		gripperJointPositions[1].joint_uri = "gripper_finger_joint_r";
 		gripperJointPositions[1].value = readValue;
 		gripperJointPositions[1].unit = boost::units::to_string(boost::units::si::meter);
-
+        
+        //Отправка команд в соответствующие топики
 		cout << "sending command ..." << endl;
-
+    
 		command.positions = armJointPositions;
 		armPositionsPublisher.publish(command);
 
 		command.positions = gripperJointPositions;
 		gripperPositionPublisher.publish(command);
 
+        //Завершение цикла
 		cout << "--------------------" << endl;
 		ros::spinOnce();
 		rate.sleep();
-
 	}
 
 	return 0;
 }
 ```
+
+По аналогии добавим данный файл в систему сборки добавив следующие строки в CMakeLists.txt, расположенного в пакете youbot_control
+
+```cmake
+add_executable(manipulator_control src/manipulator_control.cpp)
+target_link_libraries(manipulator_control ${catkin_LIBRARIES})
+```
+
+Для запуска узлов необходимо заново собрать рабочую область
+
+```console
+cd ~/catkin_ws
+catkin_make
+```
+
+Теперь узлы готовы к работе с платформой. 
+
+Запустите робота командой в терминале:
+
+```console
+roslaunch youbot_driver_ros_interface youbot_driver.launch
+```
+
+В новом окне терминала запустите узел управления скоростью
+
+```console
+rosrun youbot_driver_ros_interface velocity_control
+```
+
+В новом окне терминала запустите узел управления манипулятором
+
+```console
+rosrun youbot_driver_ros_interface manipulator_control
+```
+
+Проверьте работу запущенных узлов последовательно введя скорости и значения положения для манипулятора в соответствующие окна терминала.

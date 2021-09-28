@@ -68,7 +68,7 @@ mkdir -p ~/catkin_ws/src
 cd ~/catkin_ws/src/
 catkin_init_workspace
 cd ~/catkin_ws/
-catkim_make
+catkin_make
 ```
 
 Для использования созданного окружения добавьте выполнение команды в файл .bashrc
